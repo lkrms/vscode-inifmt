@@ -38,11 +38,10 @@ BEGIN {
   field_count[entry_line] = 0
   comment[section_line] = ""
   for (i = 1; i <= NF; i++) {
-    if (process_regex("[#;]", "[#;].*")) {
-      comment[section_line] = field_value
-    } else if (process_regex("\"", "\"([^\"]|\\\\\")*\"") ||
-        process_regex("'", "'([^']|\\')*'")) {
+    if (process_regex("[\"']", "([^ \"']*(\"([^\"]|\\\\\")*\"|'([^']|\\\\')*'))+[^ \"']*")) {
       store_field(field_value)
+    } else if (process_regex("[#;]", "[#;].*", 1)) {
+      comment[section_line] = field_value
     } else {
       store_field($i "")
       $i = placeholder
@@ -60,10 +59,19 @@ END {
   print_section()
 }
 
-function process_regex(field_regex, value_regex) {
-  if ($i ~ "^" field_regex && match($0, value_regex)) {
-    field_value = substr($0, RSTART, RLENGTH)
-    return sub(value_regex, placeholder)
+function process_regex(field_regex, value_regex, split_field, _pending) {
+  if (match($i, field_regex)) {
+    if (split_field && RSTART > 1) {
+      $i = substr($i, 1, RSTART - 1) " " substr($i, RSTART)
+      $0 = $0
+      return
+    }
+    _pending = $0
+    sub("^( |" placeholder ")*", "", _pending)
+    if (match(_pending, value_regex)) {
+      field_value = substr(_pending, RSTART, RLENGTH)
+      return sub(value_regex, placeholder)
+    }
   }
 }
 

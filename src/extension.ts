@@ -11,7 +11,7 @@ export function activate(context: vscode.ExtensionContext) {
 			const text = document.getText(),
 				awk = spawn("awk", ["-f", path.resolve(__dirname, "../scripts/inifmt.awk")]);
 
-			console.log("Spawned:", awk.spawnfile, ...awk.spawnargs);
+			console.log("Spawned:", ...awk.spawnargs);
 
 			let stdout = "";
 			awk.stdout.setEncoding("utf8");

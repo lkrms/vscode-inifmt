@@ -14,17 +14,3 @@ Trim and squeeze spaces and empty lines
 ## Requirements
 
 `awk` must be installed locally.
-
-## Extension Settings
-
-TBA
-
-## Known Issues
-
-None.
-
-## Release Notes
-
-### 0.1.0
-
-Initial release.

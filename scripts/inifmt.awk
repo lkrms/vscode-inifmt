@@ -15,7 +15,7 @@ BEGIN {
     print_section()
     # Remove empty lines from start of input
     if (output_lines) {
-      print ""
+      empty_pending = 1
     }
   }
   last_empty = 1
@@ -25,6 +25,10 @@ BEGIN {
 {
   # Remove leading and trailing spaces
   gsub("(^(" FS ")+|(" FS ")+$)", "")
+  if (empty_pending) {
+    print ""
+    empty_pending = 0
+  }
   last_empty = 0
   if (align_columns_if_first_matches && actual_lines && $1 !~ "^[#;]([^[:blank:]]|$)" && $1 != setting) {
     queue_entries()

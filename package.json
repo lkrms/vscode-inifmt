@@ -10,6 +10,7 @@
 		"Formatters"
 	],
 	"activationEvents": [
+		"onCommand:inifmt.format",
 		"onLanguage:ini",
 		"onLanguage:dotenv",
 		"onLanguage:hosts",

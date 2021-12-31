@@ -4,9 +4,12 @@ BEGIN {
   # Replace processed fields with something unprintable to maintain numbering
   placeholder = "\33"
   # Disable column alignment by default
-  align_all_columns = align_all_columns ? align_all_columns : 0
-  align_columns_if_first_matches = align_all_columns ? 0 : (align_columns_if_first_matches ? align_columns_if_first_matches : 0)
+  align_all_columns = get_var(align_all_columns, 0)
+  align_columns_if_first_matches = align_all_columns ? 0 : get_var(align_columns_if_first_matches, 0)
   align_columns = align_all_columns || align_columns_if_first_matches
+  # Align comments by default
+  align_comments = get_var(align_comments, 1)
+  comment_regex = align_comments ? get_var(comment_regex, "[#;]") : ""
 }
 
 /^[[:blank:]]*$/ {
@@ -30,7 +33,7 @@ BEGIN {
     empty_pending = 0
   }
   last_empty = 0
-  if (align_columns_if_first_matches && actual_lines && $1 !~ "^[#;]([^[:blank:]]|$)" && $1 != setting) {
+  if (align_columns_if_first_matches && actual_lines && (! comment_regex || $1 !~ "^" comment_regex "([^[:blank:]]|$)") && $1 != setting) {
     queue_entries()
   }
   entry_line++
@@ -38,9 +41,9 @@ BEGIN {
   field_count[entry_line] = 0
   comment[section_line] = ""
   for (i = 1; i <= NF; i++) {
-    if (process_regex("[\"']", "([^ \"']*(\"([^\"]|\\\\\")*\"|'([^']|\\\\')*'))+[^ \"']*")) {
+    if (process_regex("[\"'\\\\]", "(([^ \"'\\\\]|\\\\.)*(\"([^\"]|\\\\\")*\"|'([^']|\\\\')*'))+([^ \"'\\\\]|\\\\.)*")) {
       store_field(field_value)
-    } else if (process_regex("[#;]", "[#;].*", 1)) {
+    } else if (comment_regex && (process_regex(comment_regex, comment_regex ".*", 1))) {
       comment[section_line] = field_value
     } else {
       store_field($i "")
@@ -68,7 +71,7 @@ function process_regex(field_regex, value_regex, split_field, _pending) {
     }
     _pending = $0
     sub("^( |" placeholder ")*", "", _pending)
-    if (match(_pending, value_regex)) {
+    if (match(_pending, "^" value_regex)) {
       field_value = substr(_pending, RSTART, RLENGTH)
       return sub(value_regex, placeholder)
     }
@@ -116,4 +119,12 @@ function print_section(_i, _length, _max_length, _l) {
     output_lines++
   }
   section_line = 0
+}
+
+function is_set(var) {
+  return ! (var == "" && var == 0)
+}
+
+function get_var(var, default) {
+  return is_set(var) ? var : default
 }

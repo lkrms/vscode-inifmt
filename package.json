@@ -2,7 +2,7 @@
 	"name": "inifmt",
 	"displayName": "ini-format",
 	"description": "Trim and squeeze spaces and empty lines",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"publisher": "lkrms",
 	"engines": {
 		"vscode": "^1.62.0"

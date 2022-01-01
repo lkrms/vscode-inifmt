@@ -18,3 +18,7 @@
   ```gitconfig
     smudge = jq -S --indent 4 --arg shfmt \"$(type -P shfmt)\" '.+={\"shellformat.path\":$shfmt}'
   ```
+
+## [0.1.3] - 2022-01-01
+### Added
+- Add icon for Visual Studio Marketplace

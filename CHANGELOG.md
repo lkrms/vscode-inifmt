@@ -22,3 +22,20 @@
 ## [0.1.3] - 2022-01-01
 ### Added
 - Add icon for Visual Studio Marketplace
+
+## [0.1.4] - 2022-04-29
+### Fixed
+- Fix tabulated comment alignment issue where this:
+
+  ```
+      # This line has leading tabs
+      So does this text
+  ```
+
+  became this:
+
+  ```
+                        # This line has leading tabs
+      So does this text
+  ```
+

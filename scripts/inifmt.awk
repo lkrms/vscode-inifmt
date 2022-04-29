@@ -113,7 +113,7 @@ function print_section(_i, _length, _max_length, _l) {
   for (_i = 1; _i <= section_line; _i++) {
     _l = section[_i]
     if (comment[_i]) {
-      _l = (_l ? sprintf("%-" _max_length "s ", _l) : "") comment[_i]
+      _l = (_l ~ /[^\t]/ ? sprintf("%-" _max_length "s ", _l) : _l) comment[_i]
     }
     print _l
     output_lines++

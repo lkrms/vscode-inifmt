@@ -39,3 +39,8 @@
       So does this text
   ```
 
+## [0.1.5] - 2022-09-06
+### Security
+- Update dependencies to mitigate vulnerabilities in `minimist` and `nanoid`
+  reported by dependabot
+

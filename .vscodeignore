@@ -7,3 +7,8 @@ src/**
 **/.eslintrc.json
 **/*.map
 **/*.ts
+
+.github/**
+build/**
+
+*.code-workspace

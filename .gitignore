@@ -4,3 +4,5 @@ node_modules
 .vscode-test/
 package-lock.json
 *.vsix
+
+!/tests/fixtures/out

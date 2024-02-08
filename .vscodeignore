@@ -1,14 +1,15 @@
-.vscode/**
-.vscode-test/**
-src/**
-.gitignore
-.yarnrc
-**/tsconfig.json
 **/.eslintrc.json
+**/.gitignore
+**/tsconfig.json
+
+.vscode/**
+src/**
+
 **/*.map
 **/*.ts
 
 .github/**
 build/**
+tests/**
 
 *.code-workspace

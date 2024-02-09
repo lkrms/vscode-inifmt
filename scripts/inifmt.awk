@@ -2,7 +2,7 @@ BEGIN {
   # Leave tabs alone
   FS = " +"
   # Replace processed fields with something unprintable to maintain numbering
-  placeholder = "\33"
+  placeholder = "\033"
   # Disable column alignment by default
   align_all_columns = get_var(align_all_columns, 0)
   align_columns_if_first_matches = align_all_columns ? 0 : get_var(align_columns_if_first_matches, 0)
@@ -14,7 +14,7 @@ BEGIN {
 
 /^[[:blank:]]*$/ {
   # Collapse subsequent empty lines
-  if (!last_empty) {
+  if (! last_empty) {
     print_section()
     # Remove empty lines from start of input
     if (output_lines) {
@@ -27,13 +27,13 @@ BEGIN {
 
 {
   # Remove leading and trailing spaces
-  gsub("(^(" FS ")+|(" FS ")+$)", "")
+  gsub("(^(" FS ")+|(" FS ")+$)", "", $0)
   if (empty_pending) {
     print ""
     empty_pending = 0
   }
   last_empty = 0
-  if (align_columns_if_first_matches && actual_lines && (! comment_regex || $1 !~ "^" comment_regex "([^[:blank:]]|$)") && $1 != setting) {
+  if (align_columns_if_first_matches && actual_lines && (! comment_regex || $1 !~ ("^" comment_regex "([^[:blank:]]|$)")) && $1 != setting) {
     queue_entries()
   }
   entry_line++
@@ -47,11 +47,11 @@ BEGIN {
       comment[section_line] = field_value
     } else {
       store_field($i "")
-      $i = placeholder
+      replace_field(placeholder)
     }
   }
   if (field_count[entry_line]) {
-    if (!actual_lines) {
+    if (! actual_lines) {
       setting = entry[entry_line, 1]
     }
     actual_lines++
@@ -62,30 +62,49 @@ END {
   print_section()
 }
 
-function process_regex(field_regex, value_regex, split_field, _pending) {
+
+function process_regex(field_regex, value_regex, split_field, _pending)
+{
   if (match($i, field_regex)) {
     if (split_field && RSTART > 1) {
-      $i = substr($i, 1, RSTART - 1) " " substr($i, RSTART)
-      $0 = $0
+      replace_field(substr($i, 1, RSTART - 1) " " substr($i, RSTART))
       return
     }
     _pending = $0
     sub("^( |" placeholder ")*", "", _pending)
     if (match(_pending, "^" value_regex)) {
       field_value = substr(_pending, RSTART, RLENGTH)
-      return sub(value_regex, placeholder)
+      return sub(value_regex, placeholder, $0)
     }
   }
 }
 
-function store_field(value, _length) {
+function replace_field(value, _next)
+{
+  if (! match($0, "^ *[^ ]+( +[^ ]+){" (i - 1) "}")) {
+    # Last resort; should never be reached
+    $i = value
+    return
+  }
+  # Save text after $i, then remove it from the line
+  _next = substr($0, RLENGTH + 1)
+  $0 = (substr($0, 1, RLENGTH))
+  # Set $i to "", reconstructing $0 using OFS to separate fields
+  $i = ""
+  # Append new value of $i and text after it, preserving whitespace in both
+  $0 = $0 value _next
+}
+
+function store_field(value, _length)
+{
   field_count[entry_line] = i
   entry[entry_line, i] = value
   _length = length(value)
   field_width[i] = _length > field_width[i] ? _length : field_width[i]
 }
 
-function queue_entries(_offset, _i, _j, _l) {
+function queue_entries(_offset, _i, _j, _l)
+{
   _offset = section_line - entry_line
   for (_i = 1; _i <= entry_line; _i++) {
     _l = ""
@@ -101,10 +120,13 @@ function queue_entries(_offset, _i, _j, _l) {
   }
   entry_line = 0
   actual_lines = 0
-  for (_j in field_width) { delete field_width[_j] }
+  for (_j in field_width) {
+    delete field_width[_j]
+  }
 }
 
-function print_section(_i, _length, _max_length, _l) {
+function print_section(_i, _length, _max_length, _l)
+{
   queue_entries()
   for (_i = 1; _i <= section_line; _i++) {
     _length = length(section[_i])
@@ -121,10 +143,12 @@ function print_section(_i, _length, _max_length, _l) {
   section_line = 0
 }
 
-function is_set(var) {
+function is_set(var)
+{
   return ! (var == "" && var == 0)
 }
 
-function get_var(var, default) {
-  return is_set(var) ? var : default
+function get_var(var, default)
+{
+  return (is_set(var) ? var : default)
 }

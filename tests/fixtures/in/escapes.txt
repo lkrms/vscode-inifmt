@@ -1,0 +1,7 @@
+foo\"bar  baz  "qux  \"  quux" 
+foo\  bar  baz\ qux\
+foo\  bar  baz\ qux\ 
+foo\  bar  baz\ qux\     
+foo\  bar  baz\ "qux"\
+foo\  bar  baz\ "qux"\ 
+foo\  bar  baz\ "qux"\     

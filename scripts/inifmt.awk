@@ -4,18 +4,18 @@ BEGIN {
   # Replace processed fields with something unprintable to maintain numbering
   placeholder = "\033"
   # Disable column alignment by default
-  align_all_columns = get_var(align_all_columns, 0)
-  align_columns_if_first_matches = align_all_columns ? 0 : get_var(align_columns_if_first_matches, 0)
+  align_all_columns = z_get_var(align_all_columns, 0)
+  align_columns_if_first_matches = align_all_columns ? 0 : z_get_var(align_columns_if_first_matches, 0)
   align_columns = align_all_columns || align_columns_if_first_matches
   # Align comments by default
-  align_comments = get_var(align_comments, 1)
-  comment_regex = align_comments ? get_var(comment_regex, "[#;]") : ""
+  align_comments = z_get_var(align_comments, 1)
+  comment_regex = align_comments ? z_get_var(comment_regex, "[#;]") : ""
 }
 
 /^[[:blank:]]*$/ {
   # Collapse subsequent empty lines
   if (! last_empty) {
-    print_section()
+    c_print_section()
     # Remove empty lines from start of input
     if (output_lines) {
       empty_pending = 1
@@ -26,28 +26,29 @@ BEGIN {
 }
 
 {
-  # Remove leading and trailing spaces
-  gsub("(^(" FS ")+|(" FS ")+$)", "", $0)
+  # Remove leading spaces
+  sub(/^ +/, "", $0)
   if (empty_pending) {
     print ""
     empty_pending = 0
   }
   last_empty = 0
   if (align_columns_if_first_matches && actual_lines && (! comment_regex || $1 !~ ("^" comment_regex "([^[:blank:]]|$)")) && $1 != setting) {
-    queue_entries()
+    b_queue_entries()
   }
   entry_line++
   section_line++
   field_count[entry_line] = 0
   comment[section_line] = ""
   for (i = 1; i <= NF; i++) {
-    if (process_regex("[\"'\\\\]", "(([^ \"'\\\\]|\\\\.)*(\"([^\"]|\\\\\")*\"|'([^']|\\\\')*'))+([^ \"'\\\\]|\\\\.)*")) {
-      store_field(field_value)
-    } else if (comment_regex && (process_regex(comment_regex, comment_regex ".*", 1))) {
+    if (a_process_regex("[\"'\\\\]", "(([^ \"'\\\\]|\\\\.)*(\"([^\"]|\\\\\")*\"|'([^']|\\\\')*'))*([^ \\\\]|\\\\.|\\\\$)*")) {
+      a_store_field(field_value)
+    } else if (comment_regex && (a_process_regex(comment_regex, comment_regex ".*", 1))) {
+      sub(/ +$/, "", field_value)
       comment[section_line] = field_value
-    } else {
-      store_field($i "")
-      replace_field(placeholder)
+    } else if (length($i)) {
+      a_store_field($i "")
+      a_replace_field(placeholder)
     }
   }
   if (field_count[entry_line]) {
@@ -59,27 +60,29 @@ BEGIN {
 }
 
 END {
-  print_section()
+  c_print_section()
 }
 
 
-function process_regex(field_regex, value_regex, split_field, _pending)
+function a_process_regex(field_regex, value_regex, split_field, _pending, _delta)
 {
   if (match($i, field_regex)) {
     if (split_field && RSTART > 1) {
-      replace_field(substr($i, 1, RSTART - 1) " " substr($i, RSTART))
+      a_replace_field(substr($i, 1, RSTART - 1) " " substr($i, RSTART))
       return
     }
     _pending = $0
     sub("^( |" placeholder ")*", "", _pending)
     if (match(_pending, "^" value_regex)) {
       field_value = substr(_pending, RSTART, RLENGTH)
-      return sub(value_regex, placeholder, $0)
+      _delta = length($0) - length(_pending)
+      $0 = substr($0, 1, RSTART - 1 + _delta) placeholder substr($0, RSTART + RLENGTH + _delta)
+      return 1
     }
   }
 }
 
-function replace_field(value, _next)
+function a_replace_field(value, _next)
 {
   if (! match($0, "^ *[^ ]+( +[^ ]+){" (i - 1) "}")) {
     # Last resort; should never be reached
@@ -95,7 +98,7 @@ function replace_field(value, _next)
   $0 = $0 value _next
 }
 
-function store_field(value, _length)
+function a_store_field(value, _length)
 {
   field_count[entry_line] = i
   entry[entry_line, i] = value
@@ -103,7 +106,7 @@ function store_field(value, _length)
   field_width[i] = _length > field_width[i] ? _length : field_width[i]
 }
 
-function queue_entries(_offset, _i, _j, _l)
+function b_queue_entries(_offset, _i, _j, _l)
 {
   _offset = section_line - entry_line
   for (_i = 1; _i <= entry_line; _i++) {
@@ -115,7 +118,7 @@ function queue_entries(_offset, _i, _j, _l)
         _l = _l sprintf("%s ", entry[_i, _j])
       }
     }
-    sub(" +$", "", _l)
+    sub(" $", "", _l)
     section[_offset + _i] = _l
   }
   entry_line = 0
@@ -125,9 +128,9 @@ function queue_entries(_offset, _i, _j, _l)
   }
 }
 
-function print_section(_i, _length, _max_length, _l)
+function c_print_section(_i, _length, _max_length, _l)
 {
-  queue_entries()
+  b_queue_entries()
   for (_i = 1; _i <= section_line; _i++) {
     _length = length(section[_i])
     _max_length = _length > _max_length ? _length : _max_length
@@ -143,12 +146,12 @@ function print_section(_i, _length, _max_length, _l)
   section_line = 0
 }
 
-function is_set(var)
+function z_get_var(var, default)
 {
-  return ! (var == "" && var == 0)
+  return (z_is_set(var) ? var : default)
 }
 
-function get_var(var, default)
+function z_is_set(var)
 {
-  return (is_set(var) ? var : default)
+  return ! (var == "" && var == 0)
 }

@@ -15,6 +15,19 @@ function run() {
     "$@"
 }
 
+function check_bytes() {
+    local bytes_in bytes_out
+    bytes_in=$(tr -d '[:space:]' <"$file_in" | wc -c)
+    bytes_out=$(tr -d '[:space:]' <"$file_out" | wc -c)
+    if ((bytes_in == bytes_out)); then
+        return
+    fi
+    printf '%s %s non-whitespace bytes: %d\n' \
+        --- expected "$bytes_in" \
+        +++ actual "$bytes_out"
+    return 1
+}
+
 [[ ${BASH_SOURCE[0]} -ef tests/run-tests.sh ]] ||
     die "must run from root of package folder"
 
@@ -32,18 +45,23 @@ for file_in in tests/fixtures/in/*; do
     if [[ ! -f $file_out ]]; then
         printf '==> adding: %s\n' "$file" >&2
         run awk -f scripts/inifmt.awk "$file_in" >"$file_out"
+        if ! check_bytes; then
+            errors[${#errors[@]}]=$file
+            ((++failed))
+        fi
         ((++added))
     else
         printf '==> testing: %s\n' "$file" >&2
         run awk -f scripts/inifmt.awk "$file_in" >"$temp"
-        if diff -u --label expected --label actual --color=auto "$file_out" "$temp"; then
+        if check_bytes &&
+            diff -u --label expected --label actual --color=auto "$file_out" "$temp"; then
             ((++passed))
         else
             errors[${#errors[@]}]=$file
             ((++failed))
         fi
-        ((++tests))
     fi
+    ((++tests))
     printf '\n' >&2
 done
 

@@ -28,7 +28,7 @@ function check_bytes() {
     return 1
 }
 
-[[ ${BASH_SOURCE[0]} -ef tests/run-tests.sh ]] ||
+[[ ${BASH_SOURCE[0]} -ef scripts/run-tests.sh ]] ||
     die "must run from root of package folder"
 
 temp=$(mktemp)
@@ -44,7 +44,7 @@ for file_in in tests/fixtures/in/*; do
     file_out=${file_in/in/out}
     if [[ ! -f $file_out ]]; then
         printf '==> adding: %s\n' "$file" >&2
-        run awk -f scripts/inifmt.awk "$file_in" >"$file_out"
+        run awk -f bin/inifmt.awk "$file_in" >"$file_out"
         if ! check_bytes; then
             errors[${#errors[@]}]=$file
             ((++failed))
@@ -52,7 +52,7 @@ for file_in in tests/fixtures/in/*; do
         ((++added))
     else
         printf '==> testing: %s\n' "$file" >&2
-        run awk -f scripts/inifmt.awk "$file_in" >"$temp"
+        run awk -f bin/inifmt.awk "$file_in" >"$temp"
         if check_bytes &&
             diff -u --label expected --label actual --color=auto "$file_out" "$temp"; then
             ((++passed))

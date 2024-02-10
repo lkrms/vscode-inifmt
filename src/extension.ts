@@ -9,7 +9,7 @@ export function activate (context: vscode.ExtensionContext) {
   ): Thenable<vscode.TextEdit[]> {
     return new Promise((resolve) => {
       const text = document.getText()
-      const awk = spawn('awk', ['-f', path.resolve(__dirname, '../scripts/inifmt.awk')])
+      const awk = spawn('awk', ['-f', path.resolve(__dirname, '../bin/inifmt.awk')])
 
       console.log('Spawned:', ...awk.spawnargs)
 

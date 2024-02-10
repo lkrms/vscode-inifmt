@@ -9,7 +9,10 @@ src/**
 **/*.ts
 
 .github/**
+.phive/**
 build/**
+scripts/**
 tests/**
+tools/**
 
 *.code-workspace

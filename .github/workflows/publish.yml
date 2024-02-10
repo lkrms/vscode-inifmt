@@ -1,0 +1,52 @@
+name: Publish
+
+on:
+  release:
+    types: [published]
+
+  workflow_dispatch:
+    inputs:
+      tag-name:
+        description: Version tag to publish
+        required: true
+
+concurrency:
+  group: ${{ github.workflow }}
+
+jobs:
+  publish:
+    name: Package and publish extension
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.x
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Package VSIX
+        run: |
+          npx vsce package
+          jq -r '{"package_path":(.name+"-"+.version+".vsix")}|to_entries[]|"\(.key)=\(.value)"' package.json >>"$GITHUB_ENV"
+
+      - name: Upload VSIX to release
+        run: |
+          gh release upload ${{ github.event.inputs.tag-name || github.ref_name }} ${{ env.package_path }} --clobber
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to Visual Studio Marketplace
+        run: |
+          npx vsce publish --packagePath ${{ env.package_path }}
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+      - name: Publish to Open VSX Registry
+        run: |
+          npx ovsx publish --packagePath ${{ env.package_path }} --pat ${{ secrets.OVSX_PAT }}

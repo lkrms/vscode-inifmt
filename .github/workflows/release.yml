@@ -1,0 +1,17 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v[0-9]*"
+
+jobs:
+  release:
+    name: Create draft release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create draft release
+        run: gh release create --repo ${{ github.repository }} ${{ github.ref_name }} --draft --generate-notes --verify-tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

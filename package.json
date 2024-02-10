@@ -1,51 +1,51 @@
 {
-	"name": "inifmt",
-	"displayName": "inifmt - formatter for .ini files, plain text and more",
-	"description": "Trim and squeeze spaces and empty lines",
-	"version": "0.1.5",
-	"publisher": "lkrms",
-	"engines": {
-		"vscode": "^1.74.0"
-	},
-	"categories": [
-		"Formatters"
-	],
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/lkrms/vscode-inifmt.git"
-	},
-	"activationEvents": [
-		"onLanguage:ini",
-		"onLanguage:dotenv",
-		"onLanguage:hosts",
-		"onLanguage:ignore",
-		"onLanguage:plaintext",
-		"onLanguage:properties",
-		"onLanguage:ssh_config"
-	],
-	"main": "./out/extension.js",
-	"contributes": {
-		"commands": [
-			{
-				"command": "inifmt.format",
-				"title": "Trim and squeeze spaces and empty lines"
-			}
-		]
-	},
-	"scripts": {
-		"vscode:prepublish": "npm run compile",
-		"compile": "tsc -p ./",
-		"watch": "tsc -watch -p ./",
-		"pretest": "npm run compile && npm run lint",
-		"lint": "ts-standard"
-	},
-	"devDependencies": {
-		"@types/node": "^18.x",
-		"@types/vscode": "^1.74.0",
-		"@vscode/vsce": "^2.21.0",
-		"ovsx": "^0.8.3",
-		"ts-standard": "^12.0.2",
-		"typescript": "^4.9.5"
-	},
-	"icon": "images/inifmt.png"
+  "name": "inifmt",
+  "displayName": "inifmt - formatter for .ini files, plain text and more",
+  "description": "Trim and squeeze spaces and empty lines",
+  "version": "0.1.6",
+  "publisher": "lkrms",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Formatters"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lkrms/vscode-inifmt.git"
+  },
+  "activationEvents": [
+    "onLanguage:ini",
+    "onLanguage:dotenv",
+    "onLanguage:hosts",
+    "onLanguage:ignore",
+    "onLanguage:plaintext",
+    "onLanguage:properties",
+    "onLanguage:ssh_config"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "inifmt.format",
+        "title": "Trim and squeeze spaces and empty lines"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "ts-standard"
+  },
+  "devDependencies": {
+    "@types/node": "^18.x",
+    "@types/vscode": "^1.74.0",
+    "@vscode/vsce": "^2.21.0",
+    "ovsx": "^0.8.3",
+    "ts-standard": "^12.0.2",
+    "typescript": "^4.9.5"
+  },
+  "icon": "images/inifmt.png"
 }

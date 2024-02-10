@@ -9,6 +9,14 @@ The format is based on [Keep a Changelog][].
 [salient/changelog]: https://github.com/salient-labs/php-changelog
 [Keep a Changelog]: https://keepachangelog.com/en/1.1.0/
 
+## [v0.1.6] - 2024-02-10
+
+### Fixed
+
+- Fix issue where whitespace is collapsed between quotes and in comments
+- Fix issue where unmatched quotes are removed from some lines
+- Fix issue where trailing spaces are removed even when they are escaped
+
 ## [v0.1.5] - 2022-09-06
 
 ### Security
@@ -65,6 +73,7 @@ The format is based on [Keep a Changelog][].
 
 - Initial release
 
+[v0.1.6]: https://github.com/lkrms/vscode-inifmt/compare/v0.1.5...v0.1.6
 [v0.1.5]: https://github.com/lkrms/vscode-inifmt/compare/v0.1.4...v0.1.5
 [v0.1.4]: https://github.com/lkrms/vscode-inifmt/compare/v0.1.3...v0.1.4
 [v0.1.3]: https://github.com/lkrms/vscode-inifmt/compare/v0.1.2...v0.1.3
